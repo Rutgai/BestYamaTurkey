@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sosyal | MiceYama</title>
+<meta name="description" content="MiceYama sosyal medya hesapları ve topluluk linkleri.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='7' fill='%236366f1'/%3E%3Cpath d='M4 5v12l4-2 2 4 2-4 4 2V5z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;650&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body data-page="sosyal">
+
+<div id="preloader" aria-hidden="true">
+  <div>
+    <div class="pre-mark">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg>
+    </div>
+    <div class="pre-bar"><span></span></div>
+  </div>
+</div>
+
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="index.html" class="logo" aria-label="MiceYama ana sayfa">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg>
+      </span>
+      <span>Mice<span class="accent">Yama</span></span>
+    </a>
+    <nav class="nav-links" id="navLinks" aria-label="Ana menü">
+      <div class="nav-item"><a href="index.html" class="nav-link" data-page="home">Ana Sayfa</a></div>
+      <div class="nav-item">
+        <a href="yamalar.html" class="nav-link has-drop" data-page="archive">Yamalar
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+        <div class="nav-drop" id="dropYamalar"></div>
+      </div>
+      <div class="nav-item">
+        <a href="duyurular.html" class="nav-link has-drop" data-page="duyurular">Duyurular
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+        <div class="nav-drop" id="dropDuyurular"></div>
+      </div>
+      <div class="nav-item"><a href="blog.html" class="nav-link" data-page="blog">Blog</a></div>
+      <div class="nav-item"><a href="sosyal.html" class="nav-link" data-page="sosyal">Sosyal</a></div>
+    </nav>
+    <div class="header-actions">
+      <a href="uyelik.html" class="btn btn-ghost btn-sm">Üyelik</a>
+      <div id="authArea"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat" aria-expanded="false"><span></span><span></span><span></span></button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <section class="page-head container">
+    <h1 class="page-title reveal">Sosyal <span class="grad-text">Medya</span></h1>
+    <p class="section-sub reveal">Bizi takip edin, topluluğa katılın.</p>
+  </section>
+
+  <section class="container" style="padding-bottom:90px;">
+    <div class="social-grid" id="socialGrid"></div>
+  </section>
+</main>
+
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-col footer-brand">
+      <a href="index.html" class="logo">
+        <span class="logo-mark"><svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg></span>
+        <span>Mice<span class="accent">Yama</span></span>
+      </a>
+      <p id="footerTagline">Türkçe oyun yama arşivi.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Keşfet</h4>
+      <nav class="footer-links" aria-label="Alt menü">
+        <a href="index.html">Ana Sayfa</a><a href="yamalar.html">Yamalar</a><a href="duyurular.html">Duyurular</a><a href="blog.html">Blog</a>
+      </nav>
+    </div>
+    <div class="footer-col">
+      <h4>Topluluk</h4>
+      <nav class="footer-links" aria-label="Topluluk menüsü">
+        <a href="sosyal.html">Sosyal</a><a href="uyelik.html">Üyelik</a><a href="index.html#sss">SSS</a>
+      </nav>
+    </div>
+    <div class="footer-col">
+      <h4>İletişim</h4>
+      <nav class="footer-links" aria-label="İletişim menüsü"><a href="mailto:destek@miceyama.com" id="footerEmail">destek@miceyama.com</a></nav>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p id="footerNote">© 2026 MiceYama. Tüm hakları saklıdır.</p>
+    <a href="admin.html" class="footer-admin">Yönetim</a>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

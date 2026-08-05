@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiceYama | Türkçe Oyun Yama Arşivi</title>
+<meta name="description" content="MiceYama — en sevdiğiniz oyunlar için profesyonel Türkçe çeviri yamaları. Yama arşivi, duyurular, blog ve topluluk.">
+<meta property="og:title" content="MiceYama — Türkçe Yama Arşivi">
+<meta property="og:description" content="En sevdiğiniz oyunlar için profesyonel Türkçe çeviri yamaları.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='7' fill='%236366f1'/%3E%3Cpath d='M4 5v12l4-2 2 4 2-4 4 2V5z' fill='white'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;650&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+<script src="https://identity.netlify.com/v1/netlify-identity-widget.js"></script>
+</head>
+<body data-page="home">
+
+<div id="preloader" aria-hidden="true">
+  <div>
+    <div class="pre-mark">
+      <svg viewBox="0 0 24 24" width="30" height="30" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg>
+    </div>
+    <div class="pre-bar"><span></span></div>
+  </div>
+</div>
+
+<!-- ===== ÜST MENÜ ===== -->
+<header class="site-header" id="siteHeader">
+  <div class="container header-inner">
+    <a href="index.html" class="logo" aria-label="MiceYama ana sayfa">
+      <span class="logo-mark">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg>
+      </span>
+      <span>Mice<span class="accent">Yama</span></span>
+    </a>
+
+    <nav class="nav-links" id="navLinks" aria-label="Ana menü">
+      <div class="nav-item">
+        <a href="index.html" class="nav-link" data-page="home">Ana Sayfa</a>
+      </div>
+      <div class="nav-item">
+        <a href="yamalar.html" class="nav-link has-drop" data-page="archive">Yamalar
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+        <div class="nav-drop" id="dropYamalar"></div>
+      </div>
+      <div class="nav-item">
+        <a href="duyurular.html" class="nav-link has-drop" data-page="duyurular">Duyurular
+          <svg class="caret" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9l6 6 6-6"/></svg>
+        </a>
+        <div class="nav-drop" id="dropDuyurular"></div>
+      </div>
+      <div class="nav-item">
+        <a href="blog.html" class="nav-link" data-page="blog">Blog</a>
+      </div>
+      <div class="nav-item">
+        <a href="sosyal.html" class="nav-link" data-page="sosyal">Sosyal</a>
+      </div>
+    </nav>
+
+    <div class="header-actions">
+      <a href="uyelik.html" class="btn btn-ghost btn-sm">Üyelik</a>
+      <div id="authArea"></div>
+      <button class="nav-toggle" id="navToggle" aria-label="Menüyü aç/kapat" aria-expanded="false">
+        <span></span><span></span><span></span>
+      </button>
+    </div>
+  </div>
+</header>
+
+<main>
+  <!-- ===== HERO ===== -->
+  <section class="hero">
+    <div class="hero-orb orb-1"></div>
+    <div class="hero-orb orb-2"></div>
+    <div class="container hero-inner">
+      <span class="hero-badge reveal">
+        <span class="hero-badge-dot"></span>
+        <span id="heroBadge">Türkçe Yama Arşivi</span>
+      </span>
+      <h1 class="hero-title reveal">
+        <span id="heroTitle">Tüm oyunlarınız, <span class="grad-text">Türkçe.</span></span>
+        <span class="hero-count" id="heroCount" hidden>(0)</span>
+      </h1>
+      <p class="hero-sub reveal" id="heroSub" data-delay="1">MiceYama, en sevdiğiniz oyunlar için profesyonel Türkçe çeviri yamaları üretir.</p>
+      <div class="hero-actions reveal" data-delay="2">
+        <a href="yamalar.html" class="btn btn-primary btn-lg">Yama Arşivi</a>
+        <a href="#devamedenler" class="btn btn-ghost btn-lg">Devam Eden Çalışmalar</a>
+      </div>
+      <div class="hero-stats reveal" data-delay="3">
+        <div class="stat"><div class="stat-value" id="statTotal">0</div><div class="stat-label">Türkçe Yama</div></div>
+        <div class="stat"><div class="stat-value" id="statCats">0</div><div class="stat-label">Kategori</div></div>
+        <div class="stat"><div class="stat-value" id="statWork">0</div><div class="stat-label">Devam Eden Çalışma</div></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== MARQUEE ===== -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span>Türkçe Yama <em>•</em></span>
+      <span>MiceYama <em>•</em></span>
+      <span>Yeni Yamalar Yakında <em>•</em></span>
+      <span>Türkçe Oyna <em>•</em></span>
+      <span>Türkçe Yama <em>•</em></span>
+      <span>MiceYama <em>•</em></span>
+      <span>Yeni Yamalar Yakında <em>•</em></span>
+      <span>Türkçe Oyna <em>•</em></span>
+    </div>
+  </div>
+
+  <!-- ===== DEVAM EDEN ÇALIŞMALAR ===== -->
+  <section class="section" id="devamedenler">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Çalışmalar</span>
+        <h2 class="section-title">Devam Eden <span class="grad-text">Çalışmalar</span></h2>
+        <p class="section-sub">Üzerinde çalışılan yamaların çeviri durumu.</p>
+      </div>
+      <div class="works" id="worksList"></div>
+    </div>
+  </section>
+
+  <!-- ===== SON YAMALAR ===== -->
+  <section class="section section-alt" id="yamalar">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Arşiv</span>
+        <h2 class="section-title">Son <span class="grad-text">Yamalar</span></h2>
+        <p class="section-sub">Yayındaki ve hazırlanan yamalardan bir seçki.</p>
+      </div>
+      <div class="grid grid-3" id="latestGrid"></div>
+      <div style="text-align:center; margin-top:40px;" class="reveal">
+        <a href="yamalar.html" class="btn btn-ghost btn-lg">Tüm Yamaları Gör</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== DUYURULAR ===== -->
+  <section class="section" id="duyurular">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Duyurular</span>
+        <h2 class="section-title">Son <span class="grad-text">Duyurular</span></h2>
+      </div>
+      <div class="grid grid-4" id="homeAnnounce"></div>
+      <div style="text-align:center; margin-top:40px;" class="reveal">
+        <a href="duyurular.html" class="btn btn-ghost btn-lg">Tüm Duyurular</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== BLOG ===== -->
+  <section class="section section-alt" id="blog">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Blog</span>
+        <h2 class="section-title">Tüm Yazılar &amp; <span class="grad-text">Blog</span></h2>
+      </div>
+      <div class="grid grid-4" id="homePosts"></div>
+      <div style="text-align:center; margin-top:40px;" class="reveal">
+        <a href="blog.html" class="btn btn-ghost btn-lg">Tüm Yazılar</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== KATEGORİLER ===== -->
+  <section class="section" id="kategoriler">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">Kategoriler</span>
+        <h2 class="section-title">Aradığınızı <span class="grad-text">Bulun</span></h2>
+      </div>
+      <div class="grid grid-4" id="catGrid"></div>
+    </div>
+  </section>
+
+  <!-- ===== İNDİRME ===== -->
+  <section class="section section-alt" id="indir">
+    <div class="container">
+      <div class="dl-panel reveal">
+        <div id="dlPanelInfo"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===== SSS ===== -->
+  <section class="section" id="sss">
+    <div class="container">
+      <div class="section-head reveal">
+        <span class="eyebrow">SSS</span>
+        <h2 class="section-title">Sık Sorulan <span class="grad-text">Sorular</span></h2>
+      </div>
+      <div class="faq" id="faqList"></div>
+    </div>
+  </section>
+
+  <!-- ===== İLETİŞİM ===== -->
+  <section class="section section-alt" id="iletisim">
+    <div class="container">
+      <div class="contact reveal">
+        <div class="contact-icon">
+          <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="M22 7l-10 6L2 7"/></svg>
+        </div>
+        <h3 id="contactEmail">destek@miceyama.com</h3>
+        <p id="contactNote">En geç 24 saat içinde dönüş yapıyoruz.</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- ===== FOOTER ===== -->
+<footer class="footer">
+  <div class="container footer-inner">
+    <div class="footer-col footer-brand">
+      <a href="index.html" class="logo">
+        <span class="logo-mark">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/></svg>
+        </span>
+        <span>Mice<span class="accent">Yama</span></span>
+      </a>
+      <p id="footerTagline">Türkçe oyun yama arşivi.</p>
+    </div>
+    <div class="footer-col">
+      <h4>Keşfet</h4>
+      <nav class="footer-links" aria-label="Alt menü">
+        <a href="index.html">Ana Sayfa</a>
+        <a href="yamalar.html">Yamalar</a>
+        <a href="duyurular.html">Duyurular</a>
+        <a href="blog.html">Blog</a>
+      </nav>
+    </div>
+    <div class="footer-col">
+      <h4>Topluluk</h4>
+      <nav class="footer-links" aria-label="Topluluk menüsü">
+        <a href="sosyal.html">Sosyal</a>
+        <a href="uyelik.html">Üyelik</a>
+        <a href="index.html#sss">SSS</a>
+      </nav>
+    </div>
+    <div class="footer-col">
+      <h4>İletişim</h4>
+      <nav class="footer-links" aria-label="İletişim menüsü">
+        <a href="mailto:destek@miceyama.com" id="footerEmail">destek@miceyama.com</a>
+      </nav>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p id="footerNote">© 2026 MiceYama. Tüm hakları saklıdır.</p>
+    <a href="admin.html" class="footer-admin">Yönetim</a>
+  </div>
+</footer>
+
+<script src="js/app.js"></script>
+</body>
+</html>

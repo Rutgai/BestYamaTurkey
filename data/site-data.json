@@ -1,0 +1,26 @@
+{
+  "settings": {
+    "siteName": "MiceYama",
+    "tagline": "Türkçe oyun yama arşivi",
+    "heroBadge": "Türkçe Yama Arşivi",
+    "heroTitle": "Tüm oyunlarınız, Türkçe.",
+    "heroSub": "MiceYama, en sevdiğiniz oyunlar için profesyonel Türkçe çeviri yamaları üretir. Menüler, görevler, diyaloglar — hepsi doğal ve akıcı bir Türkçeyle.",
+    "email": "destek@miceyama.com",
+    "emailNote": "En geç 24 saat içinde dönüş yapıyoruz.",
+    "footerNote": "© 2026 MiceYama. Tüm hakları saklıdır. Tüm oyun markaları ilgili sahiplerine aittir."
+  },
+  "categories": [],
+  "download": {
+    "enabled": false,
+    "version": "",
+    "size": "",
+    "url": "",
+    "note": "Yakında sunulacaktır."
+  },
+  "games": [],
+  "faq": [],
+  "announcements": [],
+  "announcementCategories": [],
+  "posts": [],
+  "socials": []
+}

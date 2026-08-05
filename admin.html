@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MiceYama — Yönetim Paneli</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23c1121f' d='M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body>
+
+<header class="a-header">
+  <div class="a-container">
+    <a href="index.html" class="a-brand">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true">
+        <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" d="M4 3.5v14.5l5-2.5 3 5 3-5 5 2.5v-14.5z"/>
+      </svg>
+      <span>MiceYama <em>Yönetim</em></span>
+    </a>
+    <div class="a-head-actions">
+      <a href="index.html" class="a-link">Siteyi Görüntüle</a>
+      <button class="a-btn a-btn-outline a-hide" id="logoutBtn">Çıkış</button>
+    </div>
+  </div>
+</header>
+
+<main class="a-main">
+  <div class="a-container">
+
+    <!-- ===== GİRİŞ ===== -->
+    <section class="a-card a-login" id="loginView">
+      <h1>Yönetim Paneli</h1>
+      <p class="a-muted">Site verilerini düzenlemek için yönetim sunucusuna bağlanın.</p>
+      <div class="a-note">
+        <p>
+          Bağlantı, Netlify üzerinde çalışan <strong>yönetim fonksiyonu</strong> ile kurulur.
+          GitHub erişim jetonu tarayıcıda saklanmaz; Netlify'ın ortam değişkeninde
+          (<code>GITHUB_TOKEN</code>) durur ve istekler sunucu üzerinden yapılır.
+        </p>
+        <p>
+          Token henüz eklenmediyse: Netlify → <strong>Site configuration</strong> →
+          <strong>Environment variables</strong> → <code>GITHUB_TOKEN</code> değerini ekleyip
+          siteyi yeniden dağıtın. Token'ı GitHub'da <em>Fine-grained</em> olarak oluşturup
+          <em>Repository access → Only select repositories → BestYamaTurkey</em> ve
+          <em>Contents → Read and write</em> iznini verin.
+        </p>
+      </div>
+      <p class="a-error" id="loginError" role="alert"></p>
+      <button class="a-btn a-btn-primary" id="loginBtn">Bağlan</button>
+    </section>
+
+    <!-- ===== PANEL ===== -->
+    <section class="a-hide" id="panelView">
+      <div class="a-toolbar">
+        <div class="a-status" id="connStatus">Bağlanılıyor…</div>
+        <div class="a-toolbar-right">
+          <button class="a-btn a-btn-outline" id="saveBtn">Değişiklikleri Kaydet</button>
+        </div>
+      </div>
+      <p class="a-save-status" id="saveStatus"></p>
+
+      <nav class="a-tabs" id="tabs">
+        <button class="a-tab is-active" data-tab="download">İndirme &amp; Dosyalar</button>
+        <button class="a-tab" data-tab="games">Oyunlar</button>
+        <button class="a-tab" data-tab="duyurular">Duyurular</button>
+        <button class="a-tab" data-tab="blog">Blog Yazıları</button>
+        <button class="a-tab" data-tab="social">Sosyal Medya</button>
+        <button class="a-tab" data-tab="faq">SSS</button>
+        <button class="a-tab" data-tab="settings">Ayarlar</button>
+      </nav>
+
+      <!-- İndirme -->
+      <section class="a-tabpane is-active" data-pane="download">
+        <div class="a-card">
+          <h2>İndirme Ayarları</h2>
+          <p class="a-muted">Setup dosyası ekleyin veya doğrudan bağlantı verin.</p>
+          <div class="a-grid">
+            <label class="a-field">
+              <span>Sürüm (örn. 0.1.0)</span>
+              <input type="text" id="dlVersion" placeholder="0.1.0">
+            </label>
+            <label class="a-field">
+              <span>Boyut (örn. 5,6 MB)</span>
+              <input type="text" id="dlSize" placeholder="5,6 MB">
+            </label>
+          </div>
+          <label class="a-field">
+            <span>Not</span>
+            <input type="text" id="dlNote" placeholder="Tek tıkla iner, kurulumu kolaydır.">
+          </label>
+          <label class="a-field">
+            <span>Doğrudan indirme bağlantısı</span>
+            <input type="url" id="dlUrl" placeholder="https://...">
+          </label>
+
+          <div class="a-row a-row-actions">
+            <button class="a-btn a-btn-outline" id="fetchReleaseBtn">Son GitHub sürümünü çek</button>
+            <label class="a-btn a-btn-outline" for="fileInput">Setup dosyası yükle</label>
+            <input type="file" id="fileInput" class="a-file" accept=".mr,.zip,.exe,.rar,.7z,.ms">
+          </div>
+          <p class="a-upload-status" id="uploadStatus"></p>
+        </div>
+      </section>
+
+      <!-- Oyunlar -->
+      <section class="a-tabpane" data-pane="games">
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Oyunlar</h2>
+            <button class="a-btn a-btn-outline" id="addGameBtn">+ Yeni Oyun</button>
+          </div>
+          <div id="gamesEditor"></div>
+        </div>
+      </section>
+
+      <!-- Duyurular -->
+      <section class="a-tabpane" data-pane="duyurular">
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Duyurular</h2>
+            <button class="a-btn a-btn-outline" id="addAnnounceBtn">+ Yeni Duyuru</button>
+          </div>
+          <p class="a-muted">Ana sayfadaki duyuru bölümünde ve Duyurular sayfasında gösterilir.</p>
+          <div id="announceEditor"></div>
+        </div>
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Duyuru Kategorileri</h2>
+            <button class="a-btn a-btn-outline" id="addAnnounceCatBtn">+ Yeni Kategori</button>
+          </div>
+          <p class="a-muted">Navbar ve Duyurular sayfasındaki filtre sekmelerinde görünür.</p>
+          <div id="announceCatsEditor"></div>
+        </div>
+      </section>
+
+      <!-- Blog -->
+      <section class="a-tabpane" data-pane="blog">
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Blog Yazıları</h2>
+            <button class="a-btn a-btn-outline" id="addPostBtn">+ Yeni Yazı</button>
+          </div>
+          <p class="a-muted">Ana sayfadaki blog bölümünde ve Blog sayfasında gösterilir.</p>
+          <div id="postsEditor"></div>
+        </div>
+      </section>
+
+      <!-- Sosyal -->
+      <section class="a-tabpane" data-pane="social">
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Sosyal Medya</h2>
+            <button class="a-btn a-btn-outline" id="addSocialBtn">+ Yeni Hesap</button>
+          </div>
+          <p class="a-muted">Sosyal sayfasında listelenen topluluk hesapları.</p>
+          <div id="socialsEditor"></div>
+        </div>
+      </section>
+
+      <!-- SSS -->
+      <section class="a-tabpane" data-pane="faq">
+        <div class="a-card">
+          <div class="a-card-head">
+            <h2>Sık Sorulan Sorular</h2>
+            <button class="a-btn a-btn-outline" id="addFaqBtn">+ Yeni Soru</button>
+          </div>
+          <div id="faqEditor"></div>
+        </div>
+      </section>
+
+      <!-- Ayarlar -->
+      <section class="a-tabpane" data-pane="settings">
+        <div class="a-card">
+          <h2>Kategoriler</h2>
+          <p class="a-muted">Yamaların ayrıldığı kategoriler. Kategori bağlantısı, kategori sayfasını açar.</p>
+          <div class="a-card-head" style="margin-bottom:14px;">
+            <button class="a-btn a-btn-outline" id="addCatBtn">+ Yeni Kategori</button>
+          </div>
+          <div id="catsEditor"></div>
+        </div>
+        <div class="a-card">
+          <h2>Site Ayarları</h2>
+          <div class="a-grid">
+            <label class="a-field">
+              <span>Site adı</span>
+              <input type="text" id="setName">
+            </label>
+            <label class="a-field">
+              <span>Hero rozeti</span>
+              <input type="text" id="setBadge">
+            </label>
+          </div>
+          <label class="a-field">
+            <span>Hero başlığı</span>
+            <input type="text" id="setHeroTitle">
+          </label>
+          <label class="a-field">
+            <span>Hero açıklaması</span>
+            <textarea id="setHeroSub" rows="2"></textarea>
+          </label>
+          <label class="a-field">
+            <span>İletişim e-postası</span>
+            <input type="text" id="setEmail">
+          </label>
+          <label class="a-field">
+            <span>İletişim notu</span>
+            <input type="text" id="setEmailNote">
+          </label>
+          <label class="a-field">
+            <span>Alt bilgi (footer) metni</span>
+            <textarea id="setFooterNote" rows="2"></textarea>
+          </label>
+        </div>
+      </section>
+    </section>
+  </div>
+</main>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
