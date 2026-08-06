@@ -311,16 +311,17 @@
     var card = el("article", "card game-card reveal");
     var info = statusInfo(g);
 
-    var cover = el("div", "game-cover tone-" + (g.tone || "indigo") + (g.imageCard ? " has-img" : ""));
-    if (g.imageCard) {
+    var coverPath = g.imageCard || g.image;
+    var cover = el("div", "game-cover tone-" + (g.tone || "indigo") + (coverPath ? " has-img" : ""));
+    if (coverPath) {
       var cv = el("img", "game-cover-img");
-      cv.src = gameImgUrl(g.imageCard);
+      cv.src = gameImgUrl(coverPath);
       cv.alt = g.name || "Oyun görseli";
-      bindImgFallback(cv, g.imageCard);
+      bindImgFallback(cv, coverPath);
       cv.addEventListener("click", function (e) {
         e.preventDefault();
         e.stopPropagation();
-        openLightbox(g.image ? gameImgUrl(g.image) : gameImgUrl(g.imageCard), g.name);
+        openLightbox(gameImgUrl(g.image || g.imageCard), g.name);
       });
       cover.appendChild(cv);
     }
@@ -662,13 +663,14 @@
 
     var body = el("div", "game-page-body");
 
-    if (g.image) {
+    var fullPath = g.image || g.imageCard;
+    if (fullPath) {
       var fig = el("figure", "game-page-hero-fig");
       var img = el("img", "game-page-hero-img");
-      img.src = gameImgUrl(g.image);
+      img.src = gameImgUrl(fullPath);
       img.alt = g.name || "Oyun görseli";
-      bindImgFallback(img, g.image);
-      img.addEventListener("click", function () { openLightbox(gameImgUrl(g.image), g.name); });
+      bindImgFallback(img, fullPath);
+      img.addEventListener("click", function () { openLightbox(gameImgUrl(fullPath), g.name); });
       fig.appendChild(img);
       body.appendChild(fig);
     }

@@ -321,17 +321,17 @@
 
   function buildImageField(i, g) {
     var wrap = el("div", "a-field a-image-field");
-    wrap.appendChild(el("span", "", "Oyun Görseli (9:16 kart karesi) — tıklayınca tam yatay hali oyun sayfasında"));
+    wrap.appendChild(el("span", "", "Oyun Görseli (kartta 9:16 otomatik kırpılır, tıklayınca tam hali açılır)"));
 
     var preview = el("div", "a-image-preview");
     var src = "";
     var pi = pendingImages[i];
-    if (pi && pi.cardDataUrl) src = pi.cardDataUrl;
-    else if (g.imageCard) src = imgAdminUrl(g.imageCard);
+    if (pi && pi.dataUrl) src = pi.dataUrl;
+    else if (g.image) src = imgAdminUrl(g.image);
     if (src) {
       var img = el("img", "");
       img.src = src;
-      img.alt = "Kart önizleme";
+      img.alt = "Önizleme";
       preview.appendChild(img);
     } else {
       preview.appendChild(el("span", "a-image-empty", "Görsel yok — kart gradient arka plan gösterir"));
@@ -345,7 +345,7 @@
     file.type = "file";
     file.accept = "image/png,image/jpeg,image/webp,image/gif";
     file.addEventListener("change", function () {
-      if (file.files && file.files[0]) openCrop(i, file.files[0]);
+      if (file.files && file.files[0]) pickImage(i, file.files[0]);
       file.value = "";
     });
     lbl.appendChild(file);
@@ -402,29 +402,19 @@
   }
 
   /* --------------------------------------------------------
-     Görsel kırpma aracı (9:16)
+     Görsel yükleme (kırpmasız — kart 9:16 otomatik kırpar)
      -------------------------------------------------------- */
   var pendingImages = {};
-  var crop = {
-    index: -1, img: null,
-    dispW: 0, dispH: 0, dispX: 0, dispY: 0,
-    box: { x: 0, y: 0, w: 0 },
-    mode: null, mx: 0, my: 0, orig: null
-  };
 
-  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
-
-  function openCrop(index, file) {
+  function pickImage(i, file) {
     var reader = new FileReader();
     reader.onload = function () {
       var img = new Image();
       img.onload = function () {
-        crop.index = index;
-        crop.img = img;
-        $("cropImg").src = reader.result;
-        $("cropMask").classList.add("is-open");
-        document.body.classList.add("a-modal-lock");
-        setupCropStage();
+        var b64 = shrinkImage(img);
+        pendingImages[i] = { b64: b64, dataUrl: "data:image/jpeg;base64," + b64 };
+        renderGamesEditor();
+        setStatus("Görsel hazır. 'Değişiklikleri Kaydet' ile yüklenecek.", false);
       };
       img.onerror = function () {
         setStatus("Görsel okunamadı: " + file.name, false);
@@ -435,125 +425,21 @@
     reader.readAsDataURL(file);
   }
 
-  function closeCrop() {
-    $("cropMask").classList.remove("is-open");
-    document.body.classList.remove("a-modal-lock");
-  }
-
-  function setupCropStage() {
-    var stage = $("cropStage");
-    var sw = stage.clientWidth;
-    var sh = stage.clientHeight;
-    var iw = crop.img.naturalWidth;
-    var ih = crop.img.naturalHeight;
-    var scale = Math.min(sw / iw, sh / ih);
-    crop.dispW = iw * scale;
-    crop.dispH = ih * scale;
-    crop.dispX = (sw - crop.dispW) / 2;
-    crop.dispY = (sh - crop.dispH) / 2;
-    var bw = Math.min(crop.dispW * 0.6, crop.dispH * (9 / 16));
-    var bh = bw * (16 / 9);
-    if (bh > crop.dispH) { bh = crop.dispH; bw = bh * (9 / 16); }
-    crop.box = {
-      x: crop.dispX + (crop.dispW - bw) / 2,
-      y: crop.dispY + (crop.dispH - bh) / 2,
-      w: bw
-    };
-    renderCrop();
-  }
-
-  function renderCrop() {
-    var img = $("cropImg");
-    var box = $("cropBox");
-    img.style.left = crop.dispX + "px";
-    img.style.top = crop.dispY + "px";
-    img.style.width = crop.dispW + "px";
-    img.style.height = crop.dispH + "px";
-    var b = crop.box;
-    box.style.left = b.x + "px";
-    box.style.top = b.y + "px";
-    box.style.width = b.w + "px";
-    box.style.height = (b.w * 16 / 9) + "px";
-  }
-
-  function cropPointerDown(e) {
-    var t = e.target;
-    var resize = t && t.classList && t.classList.contains("a-crop-handle");
-    crop.mode = resize ? "resize" : "move";
-    crop.mx = e.clientX;
-    crop.my = e.clientY;
-    crop.orig = { x: crop.box.x, y: crop.box.y, w: crop.box.w };
-    e.preventDefault();
-    document.addEventListener("mousemove", cropPointerMove);
-    document.addEventListener("mouseup", cropPointerUp);
-  }
-
-  function cropPointerMove(e) {
-    var dx = e.clientX - crop.mx;
-    var dy = e.clientY - crop.my;
-    var b = crop.box;
-    if (crop.mode === "move") {
-      var nw = b.w;
-      var nh = nw * 16 / 9;
-      b.x = clamp(crop.orig.x + dx, crop.dispX, crop.dispX + crop.dispW - nw);
-      b.y = clamp(crop.orig.y + dy, crop.dispY, crop.dispY + crop.dispH - nh);
-    } else {
-      var maxW = Math.min(crop.dispW, crop.dispH * 9 / 16);
-      b.w = clamp(crop.orig.w + dx, 40, maxW);
-      b.x = clamp(crop.orig.x, crop.dispX, crop.dispX + crop.dispW - b.w);
-      b.y = clamp(crop.orig.y, crop.dispY, crop.dispY + crop.dispH - b.w * 16 / 9);
-    }
-    renderCrop();
-  }
-
-  function cropPointerUp() {
-    crop.mode = null;
-    document.removeEventListener("mousemove", cropPointerMove);
-    document.removeEventListener("mouseup", cropPointerUp);
-  }
-
-  function applyCrop() {
-    var b = crop.box;
-    var iw = crop.img.naturalWidth;
-    var ih = crop.img.naturalHeight;
-    var sw = b.w / crop.dispW * iw;
-    var sh = sw * 16 / 9;
-    var sx = clamp((b.x - crop.dispX) / crop.dispW * iw, 0, Math.max(0, iw - sw));
-    var sy = clamp((b.y - crop.dispY) / crop.dispH * ih, 0, Math.max(0, ih - sh));
-
-    var cw = 540, ch = 960;
+  function shrinkImage(img) {
+    var maxW = 1600;
+    var scale = Math.min(1, maxW / img.naturalWidth);
+    var w = Math.max(1, Math.round(img.naturalWidth * scale));
+    var h = Math.max(1, Math.round(img.naturalHeight * scale));
     var cvs = document.createElement("canvas");
-    cvs.width = cw; cvs.height = ch;
-    cvs.getContext("2d").drawImage(crop.img, sx, sy, sw, sh, 0, 0, cw, ch);
-    var cardB64 = cvs.toDataURL("image/jpeg", 0.82).split(",")[1];
-
-    var fullB64 = exportFull(crop.img);
-
-    pendingImages[crop.index] = {
-      fullB64: fullB64,
-      cardB64: cardB64,
-      cardDataUrl: "data:image/jpeg;base64," + cardB64
-    };
-    closeCrop();
-    renderGamesEditor();
-    setStatus("Görsel hazır. 'Değişiklikleri Kaydet' ile yüklenecek.", false);
-  }
-
-  function exportFull(img) {
-    var maxW = 1400;
-    var out = "";
-    while (maxW >= 700) {
-      var scale = Math.min(1, maxW / img.naturalWidth);
-      var w = Math.round(img.naturalWidth * scale);
-      var h = Math.round(img.naturalHeight * scale);
-      var cvs = document.createElement("canvas");
-      cvs.width = w; cvs.height = h;
-      cvs.getContext("2d").drawImage(img, 0, 0, w, h);
-      out = cvs.toDataURL("image/jpeg", 0.82).split(",")[1];
-      if (out.length < 850000) return out;
-      maxW -= 200;
+    cvs.width = w; cvs.height = h;
+    cvs.getContext("2d").drawImage(img, 0, 0, w, h);
+    var quality = 0.85;
+    var b64 = cvs.toDataURL("image/jpeg", quality).split(",")[1];
+    while (b64.length > 900000 && quality > 0.5) {
+      quality -= 0.1;
+      b64 = cvs.toDataURL("image/jpeg", quality).split(",")[1];
     }
-    return out;
+    return b64;
   }
 
   function uploadPendingImages(games) {
@@ -561,16 +447,10 @@
     games.forEach(function (g, i) {
       var pi = pendingImages[i];
       if (!pi) return;
-      var base = "data/images/" + g.id + "-" + i;
-      var fullPath = base + "-full.jpg";
-      var cardPath = base + "-card.jpg";
+      var path = "data/images/" + g.id + "-" + i + ".jpg";
       uploads.push(
-        ghPut(fullPath, "Oyun görseli (tam): " + (g.name || g.id), pi.fullB64)
-          .then(function () { g.image = fullPath; })
-      );
-      uploads.push(
-        ghPut(cardPath, "Oyun görseli (9:16): " + (g.name || g.id), pi.cardB64)
-          .then(function () { g.imageCard = cardPath; })
+        ghPut(path, "Oyun görseli: " + (g.name || g.id), pi.b64)
+          .then(function () { g.image = path; g.imageCard = path; })
       );
     });
     return Promise.all(uploads);
@@ -1100,10 +980,6 @@
       uploadFile(this.files[0]);
       this.value = "";
     });
-    $("cropApply").addEventListener("click", applyCrop);
-    $("cropCancel").addEventListener("click", closeCrop);
-    $("cropClose").addEventListener("click", closeCrop);
-    $("cropBox").addEventListener("mousedown", cropPointerDown);
 
     showLogin();
   });
