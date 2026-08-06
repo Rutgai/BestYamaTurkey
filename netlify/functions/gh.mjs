@@ -13,7 +13,7 @@ export default async (req) => {
   const url = new URL(req.url);
 
   const json = (obj, status) =>
-    new Response(JSON.stringify(obj), { status: status || 200, headers: { "Content-Type": "application/json" } });
+    new Response(JSON.stringify(obj), { status: status || 200, headers: { "Content-Type": "application/json", "Cache-Control": "no-store" } });
 
   try {
     if (req.method === "GET") {

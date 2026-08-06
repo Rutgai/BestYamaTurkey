@@ -172,9 +172,23 @@
   }
 
   function loadData() {
+    // Önce gh fonksiyonu (GitHub API — her zaman taze; admin kaydı anında görünür).
+    // Arıza olursa: raw > CDN > yerel > varsayılan.
+    function ghJson() {
+      return fetch("/.netlify/functions/gh?path=data/site-data.json", { cache: "no-store" })
+        .then(function (r) { if (!r.ok) throw new Error("HTTP " + r.status); return r.json(); })
+        .then(function (gh) {
+          if (!gh || !gh.content) throw new Error("gh icerik yok");
+          var bin = atob(String(gh.content).replace(/\s+/g, ""));
+          var bytes = new Uint8Array(bin.length);
+          for (var i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+          return JSON.parse(new TextDecoder("utf-8").decode(bytes));
+        });
+    }
     var raw = "https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/" + BRANCH + "/data/site-data.json";
     var cdn = "https://cdn.jsdelivr.net/gh/" + OWNER + "/" + REPO + "@" + BRANCH + "/data/site-data.json";
-    return fetchJson(raw)
+    return ghJson()
+      .catch(function () { return fetchJson(raw); })
       .catch(function () { return fetchJson(cdn); })
       .catch(function () { return fetchJson("data/site-data.json"); })
       .catch(function () { return DEFAULT_DATA; });
@@ -726,6 +740,7 @@
       if (identityReady && isMember()) {
         state.appendChild(el("h3", "", "Hoş geldiniz, " + ((authUser.user_metadata && authUser.user_metadata.full_name) || authUser.email) + "!"));
         state.appendChild(el("p", "", "Artık tüm yamaları indirebilirsiniz."));
+        if (authUser.email) state.appendChild(el("p", "member-account", "Hesap: " + authUser.email));
         var out = el("button", "btn btn-ghost btn-lg", "Çıkış Yap");
         out.type = "button";
         out.addEventListener("click", function () { if (hasIdentity()) window.netlifyIdentity.logout(); });
