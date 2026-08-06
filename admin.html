@@ -220,6 +220,28 @@
   </div>
 </main>
 
+<!-- ===== Görsel kırpma aracı (9:16) ===== -->
+<div class="a-modal-mask" id="cropMask" aria-hidden="true">
+  <div class="a-modal" role="dialog" aria-modal="true">
+    <div class="a-modal-head">
+      <h3>Oyun Görseli — 9:16 Kırp</h3>
+      <button type="button" class="a-modal-close" id="cropClose" aria-label="Kapat">&times;</button>
+    </div>
+    <p class="a-muted">
+      Yeşil çerçeveyi sürükleyerek ve köşesinden boyutlandırarak kartta görünecek
+      9:16'lık alanı seçin. Büyük resmin tamamı oyun sayfasında gösterilir.
+    </p>
+    <div class="a-crop-stage" id="cropStage">
+      <img id="cropImg" alt="Yüklenen görsel">
+      <div class="a-crop-box" id="cropBox"><span class="a-crop-handle"></span></div>
+    </div>
+    <div class="a-modal-actions">
+      <button type="button" class="a-btn a-btn-outline" id="cropCancel">Vazgeç</button>
+      <button type="button" class="a-btn a-btn-primary" id="cropApply">Kırp ve Kullan</button>
+    </div>
+  </div>
+</div>
+
 <script src="js/admin.js"></script>
 </body>
 </html>

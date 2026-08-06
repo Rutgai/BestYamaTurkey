@@ -75,6 +75,22 @@
     return "";
   }
 
+  function gameImgUrl(path) {
+    return path ? "/.netlify/functions/gh?img=" + encodeURIComponent(path) : "";
+  }
+
+  function gameImgRaw(path) {
+    return "https://raw.githubusercontent.com/" + OWNER + "/" + REPO + "/" + BRANCH + "/" + path;
+  }
+
+  function bindImgFallback(img, path) {
+    img.addEventListener("error", function () {
+      if (img.getAttribute("data-fb")) return;
+      img.setAttribute("data-fb", "1");
+      if (path) img.src = gameImgRaw(path);
+    });
+  }
+
   /* --------------------------------------------------------
      Çeviri durumu
      -------------------------------------------------------- */
@@ -295,7 +311,19 @@
     var card = el("article", "card game-card reveal");
     var info = statusInfo(g);
 
-    var cover = el("div", "game-cover tone-" + (g.tone || "indigo"));
+    var cover = el("div", "game-cover tone-" + (g.tone || "indigo") + (g.imageCard ? " has-img" : ""));
+    if (g.imageCard) {
+      var cv = el("img", "game-cover-img");
+      cv.src = gameImgUrl(g.imageCard);
+      cv.alt = g.name || "Oyun görseli";
+      bindImgFallback(cv, g.imageCard);
+      cv.addEventListener("click", function (e) {
+        e.preventDefault();
+        e.stopPropagation();
+        openLightbox(g.image ? gameImgUrl(g.image) : gameImgUrl(g.imageCard), g.name);
+      });
+      cover.appendChild(cv);
+    }
     var top = el("div", "game-cover-top");
     var t = el("div", "");
     t.appendChild(el("span", "game-title", g.name || "Oyun"));
@@ -340,6 +368,31 @@
     card.appendChild(link);
     card.appendChild(body);
     return card;
+  }
+
+  /* --------------------------------------------------------
+     Lightbox (tam görsel görüntüleme)
+     -------------------------------------------------------- */
+  function openLightbox(src, alt) {
+    var lb = qs("#lightbox");
+    if (lb) lb.remove();
+    lb = el("div", "lightbox");
+    lb.id = "lightbox";
+    var img = el("img", "");
+    img.src = src;
+    img.alt = alt || "";
+    lb.appendChild(img);
+    var close = function () {
+      lb.remove();
+      document.body.style.overflow = "";
+      document.removeEventListener("keydown", esc);
+    };
+    var esc = function (e) { if (e.key === "Escape") close(); };
+    lb.addEventListener("click", close);
+    document.addEventListener("keydown", esc);
+    document.body.style.overflow = "hidden";
+    document.body.appendChild(lb);
+    img.addEventListener("load", function () { lb.classList.add("ready"); });
   }
 
   /* --------------------------------------------------------
@@ -608,6 +661,21 @@
     wrap.appendChild(cover);
 
     var body = el("div", "game-page-body");
+
+    if (g.image) {
+      var fig = el("figure", "game-page-hero-fig");
+      var img = el("img", "game-page-hero-img");
+      img.src = gameImgUrl(g.image);
+      img.alt = g.name || "Oyun görseli";
+      bindImgFallback(img, g.image);
+      img.addEventListener("click", function () { openLightbox(gameImgUrl(g.image), g.name); });
+      fig.appendChild(img);
+      body.appendChild(fig);
+    }
+
+    body.appendChild(el("h2", "", "Açıklama"));
+    body.appendChild(el("p", "game-page-desc", g.desc || "Bu oyun için bir Türkçe çeviri yaması hazırlanıyor."));
+
     var dlg = gameDownloadUrl(g, dl);
     var pnl = el("div", "dl-panel");
     var pInfo = el("div", "dl-info");
@@ -620,9 +688,6 @@
     pnl.appendChild(pInfo);
     pnl.appendChild(buildDownload(dlg, { label: "İndir", lockLabel: "İndirmek için Giriş Yap", waitLabel: "Yakında" }));
     body.appendChild(pnl);
-
-    body.appendChild(el("h2", "", "Açıklama"));
-    body.appendChild(el("p", "game-page-desc", g.desc || "Bu oyun için bir Türkçe çeviri yaması hazırlanıyor."));
 
     body.appendChild(el("h2", "", "Bilgiler"));
     var il = el("div", "info-list");

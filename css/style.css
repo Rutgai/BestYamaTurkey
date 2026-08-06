@@ -560,10 +560,23 @@ code {
   color: #fff;
   overflow: hidden;
 }
+.game-cover.has-img { height: auto; aspect-ratio: 9 / 16; }
+.game-cover-img {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  cursor: zoom-in;
+  transition: transform 0.5s ease;
+}
+.game-card:hover .game-cover-img { transform: scale(1.04); }
 .game-cover::before {
   content: "";
   position: absolute;
   inset: 0;
+  z-index: 1;
   background-image:
     radial-gradient(140% 130% at 10% 0%, rgba(255, 255, 255, 0.16), transparent 55%),
     radial-gradient(120% 120% at 100% 100%, rgba(0, 0, 0, 0.4), transparent 60%);
@@ -575,7 +588,7 @@ code {
 .tone-emerald { background: linear-gradient(135deg, #059669, #4338ca); }
 .tone-amber { background: linear-gradient(135deg, #d97706, #7c3aed); }
 .tone-sky { background: linear-gradient(135deg, #0284c7, #4f46e5); }
-.game-cover-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; position: relative; z-index: 1; }
+.game-cover-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; position: relative; z-index: 2; }
 .game-title { font-family: var(--font-d); font-weight: 700; font-size: 1.55rem; line-height: 1.12; }
 .game-sub { font-size: 0.82rem; opacity: 0.85; margin-top: 4px; }
 
@@ -781,6 +794,42 @@ details.expand .exp-body { color: var(--muted); font-size: 0.93rem; padding: 14p
 .info-item { background: var(--panel); border: 1px solid var(--line); border-radius: var(--r-sm); padding: 18px 20px; backdrop-filter: blur(10px); }
 .info-item .lbl { font-size: 0.74rem; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); }
 .info-item .val { font-weight: 650; margin-top: 4px; font-size: 1.02rem; }
+
+.game-page-hero-fig { margin: 0 0 10px; }
+.game-page-hero-img {
+  display: block;
+  width: 100%;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--line-strong);
+  cursor: zoom-in;
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.35);
+}
+
+/* Lightbox — tam görsel */
+.lightbox {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  background: rgba(3, 4, 8, 0.92);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 5vw;
+  cursor: zoom-out;
+  animation: lbIn 0.18s ease;
+}
+.lightbox img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  border-radius: 10px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transform: scale(0.97);
+  transition: opacity 0.18s ease, transform 0.18s ease;
+}
+.lightbox.ready img { opacity: 1; transform: scale(1); }
+@keyframes lbIn { from { opacity: 0; } to { opacity: 1; } }
 
 /* ================= ÜYELİK SAYFASI ================= */
 .page-center { padding: calc(var(--header-h) + 40px) 0 90px; display: flex; justify-content: center; }

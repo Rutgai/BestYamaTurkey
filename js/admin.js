@@ -289,6 +289,12 @@
     head.appendChild(del);
     row.appendChild(head);
 
+    var hid = el("input", "");
+    hid.type = "hidden";
+    hid.id = "gid-" + i;
+    hid.value = g.id || ("g" + Date.now().toString(36) + "-" + i);
+    row.appendChild(hid);
+
     var inline = el("div", "a-inline");
     inline.appendChild(fieldInput("gname-" + i, "Ad", g.name));
     inline.appendChild(fieldInput("gyear-" + i, "Yıl", g.year));
@@ -305,7 +311,58 @@
     row.appendChild(fieldInput("gdlurl-" + i, "Oyuna özel indirme bağlantısı (boşsa genel bağlantı kullanılır)", g.downloadUrl || ""));
     row.appendChild(fieldTextarea("gdesc-" + i, "Açıklama", g.desc));
     row.appendChild(fieldInput("gtags-" + i, "Etiketler (virgülle)", (g.tags || []).join(", ")));
+    row.appendChild(buildImageField(i, g));
     return row;
+  }
+
+  function imgAdminUrl(path) {
+    return path ? FN + "?img=" + encodeURIComponent(path) : "";
+  }
+
+  function buildImageField(i, g) {
+    var wrap = el("div", "a-field a-image-field");
+    wrap.appendChild(el("span", "", "Oyun Görseli (9:16 kart karesi) — tıklayınca tam yatay hali oyun sayfasında"));
+
+    var preview = el("div", "a-image-preview");
+    var src = "";
+    var pi = pendingImages[i];
+    if (pi && pi.cardDataUrl) src = pi.cardDataUrl;
+    else if (g.imageCard) src = imgAdminUrl(g.imageCard);
+    if (src) {
+      var img = el("img", "");
+      img.src = src;
+      img.alt = "Kart önizleme";
+      preview.appendChild(img);
+    } else {
+      preview.appendChild(el("span", "a-image-empty", "Görsel yok — kart gradient arka plan gösterir"));
+    }
+    wrap.appendChild(preview);
+
+    var bar = el("div", "a-inline a-image-actions");
+    var lbl = el("label", "a-btn a-btn-outline");
+    lbl.appendChild(el("span", "", src ? "Görseli Değiştir" : "Görsel Yükle"));
+    var file = el("input", "a-file");
+    file.type = "file";
+    file.accept = "image/png,image/jpeg,image/webp,image/gif";
+    file.addEventListener("change", function () {
+      if (file.files && file.files[0]) openCrop(i, file.files[0]);
+      file.value = "";
+    });
+    lbl.appendChild(file);
+    bar.appendChild(lbl);
+    if (src) {
+      var remove = el("button", "a-btn a-btn-danger", "Görseli Kaldır");
+      remove.type = "button";
+      remove.addEventListener("click", function () {
+        delete pendingImages[i];
+        data.games[i].image = "";
+        data.games[i].imageCard = "";
+        renderGamesEditor();
+      });
+      bar.appendChild(remove);
+    }
+    wrap.appendChild(bar);
+    return wrap;
   }
 
   function categoryOptions() {
@@ -322,8 +379,10 @@
     document.querySelectorAll("#gamesEditor .a-row-card").forEach(function (row, i) {
       var progress = $("gprogress-" + i).value.trim();
       var status = $("gstatus-" + i).value;
+      var prev = data.games[i] || {};
+      var gid = $("gid-" + i) ? $("gid-" + i).value : "";
       list.push({
-        id: "g" + Date.now().toString(36) + "-" + i,
+        id: gid || ("g" + Date.now().toString(36) + "-" + i),
         name: $("gname-" + i).value.trim(),
         year: $("gyear-" + i).value.trim(),
         category: $("gcat-" + i).value,
@@ -334,10 +393,187 @@
         download: $("gdownload-" + i).checked,
         downloadUrl: $("gdlurl-" + i).value.trim(),
         desc: $("gdesc-" + i).value.trim(),
-        tags: $("gtags-" + i).value.split(",").map(function (s) { return s.trim(); }).filter(Boolean)
+        tags: $("gtags-" + i).value.split(",").map(function (s) { return s.trim(); }).filter(Boolean),
+        image: prev.image || "",
+        imageCard: prev.imageCard || ""
       });
     });
     return list;
+  }
+
+  /* --------------------------------------------------------
+     Görsel kırpma aracı (9:16)
+     -------------------------------------------------------- */
+  var pendingImages = {};
+  var crop = {
+    index: -1, img: null,
+    dispW: 0, dispH: 0, dispX: 0, dispY: 0,
+    box: { x: 0, y: 0, w: 0 },
+    mode: null, mx: 0, my: 0, orig: null
+  };
+
+  function clamp(v, lo, hi) { return Math.max(lo, Math.min(hi, v)); }
+
+  function openCrop(index, file) {
+    var reader = new FileReader();
+    reader.onload = function () {
+      var img = new Image();
+      img.onload = function () {
+        crop.index = index;
+        crop.img = img;
+        $("cropImg").src = reader.result;
+        $("cropMask").classList.add("is-open");
+        document.body.classList.add("a-modal-lock");
+        setupCropStage();
+      };
+      img.onerror = function () {
+        setStatus("Görsel okunamadı: " + file.name, false);
+      };
+      img.src = reader.result;
+    };
+    reader.onerror = function () { setStatus("Dosya okunamadı.", false); };
+    reader.readAsDataURL(file);
+  }
+
+  function closeCrop() {
+    $("cropMask").classList.remove("is-open");
+    document.body.classList.remove("a-modal-lock");
+  }
+
+  function setupCropStage() {
+    var stage = $("cropStage");
+    var sw = stage.clientWidth;
+    var sh = stage.clientHeight;
+    var iw = crop.img.naturalWidth;
+    var ih = crop.img.naturalHeight;
+    var scale = Math.min(sw / iw, sh / ih);
+    crop.dispW = iw * scale;
+    crop.dispH = ih * scale;
+    crop.dispX = (sw - crop.dispW) / 2;
+    crop.dispY = (sh - crop.dispH) / 2;
+    var bw = Math.min(crop.dispW * 0.6, crop.dispH * (9 / 16));
+    var bh = bw * (16 / 9);
+    if (bh > crop.dispH) { bh = crop.dispH; bw = bh * (9 / 16); }
+    crop.box = {
+      x: crop.dispX + (crop.dispW - bw) / 2,
+      y: crop.dispY + (crop.dispH - bh) / 2,
+      w: bw
+    };
+    renderCrop();
+  }
+
+  function renderCrop() {
+    var img = $("cropImg");
+    var box = $("cropBox");
+    img.style.left = crop.dispX + "px";
+    img.style.top = crop.dispY + "px";
+    img.style.width = crop.dispW + "px";
+    img.style.height = crop.dispH + "px";
+    var b = crop.box;
+    box.style.left = b.x + "px";
+    box.style.top = b.y + "px";
+    box.style.width = b.w + "px";
+    box.style.height = (b.w * 16 / 9) + "px";
+  }
+
+  function cropPointerDown(e) {
+    var t = e.target;
+    var resize = t && t.classList && t.classList.contains("a-crop-handle");
+    crop.mode = resize ? "resize" : "move";
+    crop.mx = e.clientX;
+    crop.my = e.clientY;
+    crop.orig = { x: crop.box.x, y: crop.box.y, w: crop.box.w };
+    e.preventDefault();
+    document.addEventListener("mousemove", cropPointerMove);
+    document.addEventListener("mouseup", cropPointerUp);
+  }
+
+  function cropPointerMove(e) {
+    var dx = e.clientX - crop.mx;
+    var dy = e.clientY - crop.my;
+    var b = crop.box;
+    if (crop.mode === "move") {
+      var nw = b.w;
+      var nh = nw * 16 / 9;
+      b.x = clamp(crop.orig.x + dx, crop.dispX, crop.dispX + crop.dispW - nw);
+      b.y = clamp(crop.orig.y + dy, crop.dispY, crop.dispY + crop.dispH - nh);
+    } else {
+      var maxW = Math.min(crop.dispW, crop.dispH * 9 / 16);
+      b.w = clamp(crop.orig.w + dx, 40, maxW);
+      b.x = clamp(crop.orig.x, crop.dispX, crop.dispX + crop.dispW - b.w);
+      b.y = clamp(crop.orig.y, crop.dispY, crop.dispY + crop.dispH - b.w * 16 / 9);
+    }
+    renderCrop();
+  }
+
+  function cropPointerUp() {
+    crop.mode = null;
+    document.removeEventListener("mousemove", cropPointerMove);
+    document.removeEventListener("mouseup", cropPointerUp);
+  }
+
+  function applyCrop() {
+    var b = crop.box;
+    var iw = crop.img.naturalWidth;
+    var ih = crop.img.naturalHeight;
+    var sw = b.w / crop.dispW * iw;
+    var sh = sw * 16 / 9;
+    var sx = clamp((b.x - crop.dispX) / crop.dispW * iw, 0, Math.max(0, iw - sw));
+    var sy = clamp((b.y - crop.dispY) / crop.dispH * ih, 0, Math.max(0, ih - sh));
+
+    var cw = 540, ch = 960;
+    var cvs = document.createElement("canvas");
+    cvs.width = cw; cvs.height = ch;
+    cvs.getContext("2d").drawImage(crop.img, sx, sy, sw, sh, 0, 0, cw, ch);
+    var cardB64 = cvs.toDataURL("image/jpeg", 0.82).split(",")[1];
+
+    var fullB64 = exportFull(crop.img);
+
+    pendingImages[crop.index] = {
+      fullB64: fullB64,
+      cardB64: cardB64,
+      cardDataUrl: "data:image/jpeg;base64," + cardB64
+    };
+    closeCrop();
+    renderGamesEditor();
+    setStatus("Görsel hazır. 'Değişiklikleri Kaydet' ile yüklenecek.", false);
+  }
+
+  function exportFull(img) {
+    var maxW = 1400;
+    var out = "";
+    while (maxW >= 700) {
+      var scale = Math.min(1, maxW / img.naturalWidth);
+      var w = Math.round(img.naturalWidth * scale);
+      var h = Math.round(img.naturalHeight * scale);
+      var cvs = document.createElement("canvas");
+      cvs.width = w; cvs.height = h;
+      cvs.getContext("2d").drawImage(img, 0, 0, w, h);
+      out = cvs.toDataURL("image/jpeg", 0.82).split(",")[1];
+      if (out.length < 850000) return out;
+      maxW -= 200;
+    }
+    return out;
+  }
+
+  function uploadPendingImages(games) {
+    var uploads = [];
+    games.forEach(function (g, i) {
+      var pi = pendingImages[i];
+      if (!pi) return;
+      var base = "data/images/" + g.id + "-" + i;
+      var fullPath = base + "-full.jpg";
+      var cardPath = base + "-card.jpg";
+      uploads.push(
+        ghPut(fullPath, "Oyun görseli (tam): " + (g.name || g.id), pi.fullB64)
+          .then(function () { g.image = fullPath; })
+      );
+      uploads.push(
+        ghPut(cardPath, "Oyun görseli (9:16): " + (g.name || g.id), pi.cardB64)
+          .then(function () { g.imageCard = cardPath; })
+      );
+    });
+    return Promise.all(uploads);
   }
 
   /* --------------------------------------------------------
@@ -756,7 +992,10 @@
     if (data.download.url) data.download.enabled = true;
 
     setStatus("Kaydediliyor…", false);
-    saveData().then(function () {
+    uploadPendingImages(data.games).then(function () {
+      return saveData();
+    }).then(function () {
+      pendingImages = {};
       setStatus("Kaydedildi. Site birkaç dakika içinde güncellenir.", true);
     }).catch(function (err) {
       setStatus("Kaydedilemedi: " + hintFor(err), false);
@@ -861,6 +1100,10 @@
       uploadFile(this.files[0]);
       this.value = "";
     });
+    $("cropApply").addEventListener("click", applyCrop);
+    $("cropCancel").addEventListener("click", closeCrop);
+    $("cropClose").addEventListener("click", closeCrop);
+    $("cropBox").addEventListener("mousedown", cropPointerDown);
 
     showLogin();
   });

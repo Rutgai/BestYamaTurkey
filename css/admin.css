@@ -206,3 +206,101 @@ body {
 .a-inline { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 0 14px; }
 
 .a-empty { color: var(--muted); font-size: 0.92rem; padding: 12px 0; }
+
+/* ---- Görsel alanı ---- */
+.a-btn-danger { background: #fef2f2; color: var(--bad); border-color: #fecaca; }
+.a-btn-danger:hover { background: #fee2e2; border-color: var(--bad); }
+
+.a-image-field {
+  border: 1px dashed var(--border-strong);
+  border-radius: 12px;
+  padding: 14px;
+  background: #fbfcfe;
+}
+.a-image-preview {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 8px 0 12px;
+  background: repeating-conic-gradient(#e2e8f0 0 25%, #f1f5f9 0 50%) 0 0 / 16px 16px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  min-height: 120px;
+  overflow: hidden;
+}
+.a-image-preview img { max-height: 260px; max-width: 100%; display: block; border-radius: 8px; }
+.a-image-empty { color: var(--muted); font-size: 0.85rem; padding: 24px 16px; text-align: center; }
+.a-image-actions { margin-top: 4px; }
+
+/* ---- Modal (kırpma aracı) ---- */
+.a-modal-mask {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.55);
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.a-modal-mask.is-open { display: flex; }
+.a-modal {
+  background: #fff;
+  border-radius: 16px;
+  box-shadow: 0 30px 80px rgba(0, 0, 0, 0.35);
+  width: min(860px, 100%);
+  max-height: 92vh;
+  overflow: auto;
+  padding: 24px;
+}
+.a-modal-head { display: flex; align-items: center; justify-content: space-between; gap: 14px; margin-bottom: 6px; }
+.a-modal-head h3 { font-size: 1.15rem; font-weight: 800; }
+.a-modal-close { background: none; border: none; font-size: 1.6rem; line-height: 1; color: var(--muted); cursor: pointer; padding: 4px 8px; }
+.a-modal-close:hover { color: var(--bad); }
+.a-modal-actions { display: flex; gap: 12px; justify-content: flex-end; margin-top: 16px; }
+body.a-modal-lock { overflow: hidden; }
+
+/* ---- Kırpma sahnesi ---- */
+.a-crop-stage {
+  position: relative;
+  height: 60vh;
+  min-height: 320px;
+  max-height: 70vh;
+  overflow: hidden;
+  background: #0f172a;
+  border-radius: 12px;
+  border: 1px solid var(--border);
+  user-select: none;
+  -webkit-user-drag: none;
+  touch-action: none;
+}
+.a-crop-stage img { position: absolute; max-width: none; max-height: none; pointer-events: none; }
+.a-crop-box {
+  position: absolute;
+  border: 2px solid #10b981;
+  box-shadow: 0 0 0 9999px rgba(3, 7, 18, 0.55);
+  cursor: move;
+  box-sizing: border-box;
+}
+.a-crop-box::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image:
+    linear-gradient(#10b981 1px, transparent 1px),
+    linear-gradient(90deg, #10b981 1px, transparent 1px);
+  background-size: 33.33% 33.33%;
+  opacity: 0.25;
+  pointer-events: none;
+}
+.a-crop-handle {
+  position: absolute;
+  right: -6px;
+  bottom: -6px;
+  width: 14px;
+  height: 14px;
+  background: #10b981;
+  border: 2px solid #fff;
+  border-radius: 3px;
+  cursor: nwse-resize;
+}
