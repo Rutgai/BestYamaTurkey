@@ -192,6 +192,78 @@
   }
 
   /* --------------------------------------------------------
+     Bildirimler / onay / durum takibi
+     -------------------------------------------------------- */
+  function toast(msg, type) {
+    var box = $("toasts");
+    if (!box) return;
+    var t = el("div", "a-toast " + (type || "info"));
+    t.appendChild(el("span", "a-toast-msg", msg));
+    var close = el("button", "a-toast-close", "×");
+    close.type = "button";
+    close.addEventListener("click", function () { t.remove(); });
+    t.appendChild(close);
+    box.appendChild(t);
+    setTimeout(function () {
+      t.classList.add("out");
+      setTimeout(function () { t.remove(); }, 250);
+    }, 4200);
+  }
+
+  function confirmAction(message, onYes, yesLabel) {
+    var mask = $("confirmMask");
+    if (!mask) { if (onYes) onYes(); return; }
+    $("confirmMsg").textContent = message;
+    $("confirmYes").textContent = yesLabel || "Evet, Sil";
+    mask.classList.add("is-open");
+    document.body.classList.add("a-modal-lock");
+    var done = false;
+    function finish(ok) {
+      if (done) return;
+      done = true;
+      mask.classList.remove("is-open");
+      document.body.classList.remove("a-modal-lock");
+      $("confirmYes").onclick = null;
+      $("confirmCancel").onclick = null;
+      $("confirmClose").onclick = null;
+      if (ok && onYes) onYes();
+    }
+    $("confirmYes").onclick = function () { finish(true); };
+    $("confirmCancel").onclick = function () { finish(false); };
+    $("confirmClose").onclick = function () { finish(false); };
+  }
+
+  var dirty = false;
+  function markDirty() {
+    if (!dirty) {
+      dirty = true;
+      var b = $("saveBtn");
+      if (b) b.classList.add("is-dirty");
+    }
+  }
+  function markClean() {
+    dirty = false;
+    var b = $("saveBtn");
+    if (b) b.classList.remove("is-dirty");
+  }
+  function setSaving(on) {
+    var b = $("saveBtn");
+    if (!b) return;
+    b.classList.toggle("is-loading", !!on);
+    b.disabled = !!on;
+  }
+
+  function applyGameSearch() {
+    var search = $("gameSearch");
+    if (!search) return;
+    var q = search.value.trim().toLowerCase();
+    document.querySelectorAll("#gamesEditor .a-row-card").forEach(function (row, i) {
+      var name = $("gname-" + i) ? $("gname-" + i).value.toLowerCase() : "";
+      row.classList.toggle("a-hide", q !== "" && name.indexOf(q) === -1);
+    });
+  }
+
+  /* --------------------------------------------------------
      Sekmeler
      -------------------------------------------------------- */
   function initTabs() {
@@ -282,8 +354,12 @@
     var del = el("button", "a-del", "Sil");
     del.type = "button";
     del.addEventListener("click", function () {
-      data.games.splice(i, 1);
-      renderGamesEditor();
+      confirmAction("\"" + (g.name || "Oyun") + "\" kalıcı olarak silinecek. Emin misiniz?", function () {
+        data.games.splice(i, 1);
+        renderGamesEditor();
+        applyGameSearch();
+        markDirty();
+      });
     });
     head.appendChild(title);
     head.appendChild(del);
@@ -358,6 +434,7 @@
         data.games[i].image = "";
         data.games[i].imageCard = "";
         renderGamesEditor();
+        markDirty();
       });
       bar.appendChild(remove);
     }
@@ -414,6 +491,7 @@
         var b64 = shrinkImage(img);
         pendingImages[i] = { b64: b64, dataUrl: "data:image/jpeg;base64," + b64 };
         renderGamesEditor();
+        markDirty();
         setStatus("Görsel hazır. 'Değişiklikleri Kaydet' ile yüklenecek.", false);
       };
       img.onerror = function () {
@@ -482,8 +560,11 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        data.announcements.splice(i, 1);
-        renderAnnounceEditor();
+        confirmAction("Duyuru silinecek. Emin misiniz?", function () {
+          data.announcements.splice(i, 1);
+          renderAnnounceEditor();
+          markDirty();
+        });
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -527,13 +608,16 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        var removedId = data.announcementCategories[i].id;
-        data.announcementCategories.splice(i, 1);
-        (data.announcements || []).forEach(function (a) {
-          if (a.category === removedId) a.category = "";
+        confirmAction("Kategori silinecek. Bu kategoriye bağlı duyuruların kategorisi boşalır. Emin misiniz?", function () {
+          var removedId = data.announcementCategories[i].id;
+          data.announcementCategories.splice(i, 1);
+          (data.announcements || []).forEach(function (a) {
+            if (a.category === removedId) a.category = "";
+          });
+          renderAnnounceCatsEditor();
+          renderAnnounceEditor();
+          markDirty();
         });
-        renderAnnounceCatsEditor();
-        renderAnnounceEditor();
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -574,8 +658,11 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        data.posts.splice(i, 1);
-        renderPostsEditor();
+        confirmAction("Blog yazısı silinecek. Emin misiniz?", function () {
+          data.posts.splice(i, 1);
+          renderPostsEditor();
+          markDirty();
+        });
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -621,8 +708,11 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        data.socials.splice(i, 1);
-        renderSocialsEditor();
+        confirmAction("Sosyal hesap silinecek. Emin misiniz?", function () {
+          data.socials.splice(i, 1);
+          renderSocialsEditor();
+          markDirty();
+        });
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -670,8 +760,11 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        data.faq.splice(i, 1);
-        renderFaqEditor();
+        confirmAction("Soru silinecek. Emin misiniz?", function () {
+          data.faq.splice(i, 1);
+          renderFaqEditor();
+          markDirty();
+        });
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -706,12 +799,15 @@
       var del = el("button", "a-del", "Sil");
       del.type = "button";
       del.addEventListener("click", function () {
-        var removedId = data.categories[i].id;
-        data.categories.splice(i, 1);
-        data.games.forEach(function (g) {
-          if (g.category === removedId) g.category = "";
+        confirmAction("Kategori silinecek. Bu kategoriye bağlı oyunların kategorisi boşalır. Emin misiniz?", function () {
+          var removedId = data.categories[i].id;
+          data.categories.splice(i, 1);
+          data.games.forEach(function (g) {
+            if (g.category === removedId) g.category = "";
+          });
+          renderCatsEditor();
+          markDirty();
         });
-        renderCatsEditor();
       });
       head.appendChild(del);
       row.appendChild(head);
@@ -871,14 +967,20 @@
     if (!data.download.url) data.download.enabled = false;
     if (data.download.url) data.download.enabled = true;
 
+    setSaving(true);
     setStatus("Kaydediliyor…", false);
     uploadPendingImages(data.games).then(function () {
       return saveData();
     }).then(function () {
       pendingImages = {};
+      markClean();
+      setSaving(false);
       setStatus("Kaydedildi. Site birkaç dakika içinde güncellenir.", true);
+      toast("Değişiklikler kaydedildi.", "ok");
     }).catch(function (err) {
+      setSaving(false);
       setStatus("Kaydedilemedi: " + hintFor(err), false);
+      toast("Kaydedilemedi: " + hintFor(err), "bad");
     });
   }
 
@@ -919,6 +1021,7 @@
     renderDownloadEditor();
     setStatus("", false);
     $("uploadStatus").textContent = "";
+    markClean();
   }
 
   /* --------------------------------------------------------
@@ -930,6 +1033,30 @@
     $("loginBtn").addEventListener("click", tryConnect);
     $("logoutBtn").addEventListener("click", logout);
     $("saveBtn").addEventListener("click", save);
+
+    var panel = $("panelView");
+    panel.addEventListener("input", markDirty);
+    panel.addEventListener("change", markDirty);
+
+    document.addEventListener("keydown", function (e) {
+      if ((e.ctrlKey || e.metaKey) && String(e.key).toLowerCase() === "s") {
+        e.preventDefault();
+        if (dirty) save();
+      }
+    });
+
+    window.addEventListener("beforeunload", function (e) {
+      if (dirty) {
+        e.preventDefault();
+        e.returnValue = "";
+      }
+    });
+
+    var searchInput = $("gameSearch");
+    if (searchInput) {
+      searchInput.addEventListener("input", applyGameSearch);
+    }
+
     $("addGameBtn").addEventListener("click", function () {
       data.games.push({
         id: "g" + Date.now().toString(36),
@@ -946,34 +1073,41 @@
         badge: "Türkçe Yama"
       });
       renderGamesEditor();
+      markDirty();
     });
     $("addFaqBtn").addEventListener("click", function () {
       data.faq.push({ q: "Yeni soru", a: "Yeni cevap" });
       renderFaqEditor();
+      markDirty();
     });
     $("addCatBtn").addEventListener("click", function () {
       data.categories.push({ id: "yeni-kategori", name: "Yeni Kategori" });
       renderCatsEditor();
+      markDirty();
     });
     $("addAnnounceBtn").addEventListener("click", function () {
       if (!data.announcements) data.announcements = [];
       data.announcements.push({ date: "", title: "Yeni Duyuru", category: "", body: "" });
       renderAnnounceEditor();
+      markDirty();
     });
     $("addAnnounceCatBtn").addEventListener("click", function () {
       if (!data.announcementCategories) data.announcementCategories = [];
       data.announcementCategories.push({ id: "yeni-kategori", name: "Yeni Kategori" });
       renderAnnounceCatsEditor();
+      markDirty();
     });
     $("addPostBtn").addEventListener("click", function () {
       if (!data.posts) data.posts = [];
       data.posts.push({ date: "", title: "Yeni Yazı", category: "", excerpt: "", body: "" });
       renderPostsEditor();
+      markDirty();
     });
     $("addSocialBtn").addEventListener("click", function () {
       if (!data.socials) data.socials = [];
       data.socials.push({ platform: "discord", label: "MiceYama Topluluk", url: "", desc: "" });
       renderSocialsEditor();
+      markDirty();
     });
     $("fetchReleaseBtn").addEventListener("click", fetchLatestRelease);
     $("fileInput").addEventListener("change", function () {

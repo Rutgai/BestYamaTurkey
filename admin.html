@@ -111,7 +111,10 @@
         <div class="a-card">
           <div class="a-card-head">
             <h2>Oyunlar</h2>
-            <button class="a-btn a-btn-outline" id="addGameBtn">+ Yeni Oyun</button>
+            <div class="a-head-right">
+              <input type="search" id="gameSearch" class="a-search" placeholder="Oyun ara…">
+              <button class="a-btn a-btn-outline" id="addGameBtn">+ Yeni Oyun</button>
+            </div>
           </div>
           <div id="gamesEditor"></div>
         </div>
@@ -221,5 +224,21 @@
 </main>
 
 <script src="js/admin.js"></script>
+
+<div class="a-toasts" id="toasts" aria-live="polite"></div>
+
+<div class="a-modal-mask" id="confirmMask" aria-hidden="true">
+  <div class="a-modal a-modal-sm" role="dialog" aria-modal="true" aria-labelledby="confirmTitle">
+    <div class="a-modal-head">
+      <h3 id="confirmTitle">Emin misiniz?</h3>
+      <button type="button" class="a-modal-close" id="confirmClose" aria-label="Kapat">&times;</button>
+    </div>
+    <p class="a-confirm-msg" id="confirmMsg"></p>
+    <div class="a-modal-actions">
+      <button type="button" class="a-btn a-btn-outline" id="confirmCancel">Vazgeç</button>
+      <button type="button" class="a-btn a-btn-danger" id="confirmYes">Evet, Sil</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
