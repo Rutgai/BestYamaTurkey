@@ -139,7 +139,9 @@
       var attempts = 0;
       (function pollCurrent() {
         if (identityReady && authUser) return;
-        var cu = (window.netlifyIdentity && window.netlifyIdentity.currentUser) ? window.netlifyIdentity.currentUser() : null;
+        var w = window.netlifyIdentity;
+        var widgetDone = !!(w && w.store && w.store.gotrue);
+        var cu = widgetDone && w.currentUser ? w.currentUser() : null;
         if (cu) {
           identityReady = true;
           authUser = cu;
@@ -147,7 +149,7 @@
           renderCurrent();
           return;
         }
-        if (!identityReady && attempts < 25) {
+        if (!widgetDone && attempts < 25) {
           attempts++;
           setTimeout(pollCurrent, 150);
         } else {
