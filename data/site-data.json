@@ -1,7 +1,7 @@
 {
   "settings": {
     "siteName": "MiceYama",
-    "tagline": "Türkçe oyun yama arşivi",
+    "tagline": "MiceYama — Türkçe oyun yama arşivi",
     "heroBadge": "Türkçe Yama Arşivi",
     "heroTitle": "Tüm oyunlarınız, Türkçe.",
     "heroSub": "MiceYama, en sevdiğiniz oyunlar için profesyonel Türkçe çeviri yamaları üretir. Menüler, görevler, diyaloglar — hepsi doğal ve akıcı bir Türkçeyle.",
@@ -17,7 +17,31 @@
     "url": "",
     "note": "Yakında sunulacaktır."
   },
-  "games": [],
+  "games": [
+    {
+      "id": "gmshvepe9-0",
+      "name": "Overcooked",
+      "year": "6/08/2026",
+      "category": "",
+      "badge": "Türkçe Yama",
+      "status": "yapim",
+      "progress": 0,
+      "tone": "indigo",
+      "download": false,
+      "downloadUrl": "",
+      "desc": "Mutfağı Devralmaya Hazır Olun: Overcooked Türkçe Yama Projesi Yolda!\n\nKaosun, bağrışmaların ve en lezzetli yemekleri en kısa sürede çıkarma telaşının adresi olan Overcooked dünyası, yakında çok daha samimi ve eğlenceli bir hale bürünüyor!\n\nSoğan Kral’ın krallığını kurtarmak için dostlarımızla omuz omuza verdiğimiz bu çılgın co-op macerasında dil bariyerini tamamen ortadan kaldıracak Overcooked Türkçe Yama projemiz resmi olarak yapım aşamasındadır.",
+      "tags": [
+        "overcooked",
+        "overcooked-1",
+        "overcooked-turkce-yama",
+        "overcooked-turkce-ceviri",
+        "overcooked-mod",
+        "overcooked-pc",
+        "overcooked-yamasi",
+        "overcooked-turkce-oyna"
+      ]
+    }
+  ],
   "faq": [],
   "announcements": [],
   "announcementCategories": [],
