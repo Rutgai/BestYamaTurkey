@@ -133,6 +133,29 @@
       window.netlifyIdentity.on("init", function (u) { identityReady = true; authUser = u || null; renderAuthUI(); renderCurrent(); });
       window.netlifyIdentity.on("login", function (u) { authUser = u; identityReady = true; renderAuthUI(); renderCurrent(); });
       window.netlifyIdentity.on("logout", function () { authUser = null; renderAuthUI(); renderCurrent(); });
+
+      // Widget head'de otomatik başlarken "init"/"login" olayları bu dinleyiciler
+      // kaydedilmeden önce fırlayabilir; kayıtlı oturumu currentUser() ile geri kurtar.
+      var attempts = 0;
+      (function pollCurrent() {
+        if (identityReady && authUser) return;
+        var cu = (window.netlifyIdentity && window.netlifyIdentity.currentUser) ? window.netlifyIdentity.currentUser() : null;
+        if (cu) {
+          identityReady = true;
+          authUser = cu;
+          renderAuthUI();
+          renderCurrent();
+          return;
+        }
+        if (!identityReady && attempts < 25) {
+          attempts++;
+          setTimeout(pollCurrent, 150);
+        } else {
+          identityReady = true;
+          renderAuthUI();
+          renderCurrent();
+        }
+      })();
     } catch (e) { /* widget yoksa sessiz */ }
   }
 
